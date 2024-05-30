@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -89,6 +90,24 @@ func typearg(arg string) {
 	if contains {
 		fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", arg)
 	} else {
-		fmt.Fprintf(os.Stdout, "%s not found\n", arg)
+		fullPath, fromPath := isFromPath(arg)
+		if fromPath {
+			fmt.Fprintf(os.Stdout, "%s is %s\n", arg, fullPath)
+		} else {
+
+			fmt.Fprintf(os.Stdout, "%s not found\n", arg)
+		}
 	}
+}
+
+func isFromPath(arg string) (string, bool) {
+	paths := strings.Split(os.Getenv("PATH"), ":")
+
+	for _, path := range paths {
+		fullPath := filepath.Join(path, arg)
+		if _, err := os.Stat(fullPath); err == nil {
+			return fullPath, true
+		}
+	}
+	return "", false
 }

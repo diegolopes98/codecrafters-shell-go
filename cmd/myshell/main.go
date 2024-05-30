@@ -57,12 +57,7 @@ func exec(cmd string, args []string) {
 	case "type":
 		typeargs(args)
 	default:
-		fullPath, isFromPath := isFromPath(cmd)
-		if isFromPath {
-			execFromPath(fullPath, args)
-		} else {
-			notFound(cmd)
-		}
+		execFromPath(cmd, args)
 	}
 }
 
@@ -117,12 +112,12 @@ func isFromPath(arg string) (string, bool) {
 	return "", false
 }
 
-func execFromPath(binPath string, args []string) {
-	execution := execos.Command(binPath, args...)
+func execFromPath(cmd string, args []string) {
+	execution := execos.Command(cmd, args...)
 
 	output, err := execution.CombinedOutput()
 	if err != nil {
-		log.Fatal(err)
+		notFound(cmd)
 	}
 
 	fmt.Fprintf(os.Stdout, "%s", output)

@@ -141,11 +141,8 @@ func cd(args []string) {
 	if len(args) == 0 {
 		dir = getHomeDir()
 	} else {
-		if args[0] == "~" {
-			dir = getHomeDir()
-		} else {
-			dir = args[0]
-		}
+		args[0] = strings.Replace(args[0], "~", getHomeDir(), -1)
+		dir = args[0]
 	}
 
 	if err := os.Chdir(dir); err != nil {

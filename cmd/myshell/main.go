@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -51,6 +52,8 @@ func exec(cmd string, args []string) {
 		exit(args)
 	case "echo":
 		echo(args)
+	case "type":
+		typeargs(args)
 	default:
 		notFound(cmd)
 	}
@@ -71,4 +74,21 @@ func echo(args []string) {
 
 func notFound(cmd string) {
 	fmt.Printf("%s: command not found\n", cmd)
+}
+
+func typeargs(args []string) {
+	for _, arg := range args {
+		typearg(arg)
+	}
+}
+
+func typearg(arg string) {
+	builtin := []string{"exit", "echo", "type"} // TODO: review replication of commands check
+
+	contains := slices.Contains(builtin, arg)
+	if contains {
+		fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", arg)
+	} else {
+		fmt.Fprintf(os.Stdout, "%s not found\n", arg)
+	}
 }

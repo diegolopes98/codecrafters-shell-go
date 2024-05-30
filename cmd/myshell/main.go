@@ -58,6 +58,8 @@ func exec(cmd string, args []string) {
 		typeargs(args)
 	case "pwd":
 		pwd()
+	case "cd":
+		cd(args)
 	default:
 		execFromPath(cmd, args)
 	}
@@ -87,7 +89,7 @@ func typeargs(args []string) {
 }
 
 func typearg(arg string) {
-	builtin := []string{"exit", "echo", "type", "pwd"} // TODO: review replication of commands check
+	builtin := []string{"exit", "echo", "type", "pwd", "cd"} // TODO: review replication of commands check
 
 	contains := slices.Contains(builtin, arg)
 	if contains {
@@ -132,4 +134,22 @@ func pwd() {
 	}
 
 	fmt.Fprintf(os.Stdout, "%s\n", wd)
+}
+
+func cd(args []string) {
+	var dir string
+	if len(args) == 0 {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		dir = home
+	} else {
+		dir = args[0]
+	}
+
+	if err := os.Chdir(dir); err != nil {
+		fmt.Fprintf(os.Stdout, "%s: No such file or directory\n", dir)
+	}
 }

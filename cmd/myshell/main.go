@@ -4,12 +4,26 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
-	// Uncomment this block to pass the first stage
 	fmt.Fprint(os.Stdout, "$ ")
 
-	// Wait for user input
-	bufio.NewReader(os.Stdin).ReadString('\n')
+	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "Error reading from buffer %s", err)
+		os.Exit(-1)
+	}
+
+	cmd := strings.TrimRight(input, "\n")
+	if valid := validateCommand(cmd); !valid {
+		fmt.Fprintf(os.Stdout, "%s: command not found\n", cmd)
+	}
+
+	os.Exit(0)
+}
+
+func validateCommand(cmd string) bool {
+	return false // TODO: add proper validation
 }

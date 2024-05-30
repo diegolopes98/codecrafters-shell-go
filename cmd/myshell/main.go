@@ -56,6 +56,8 @@ func exec(cmd string, args []string) {
 		echo(args)
 	case "type":
 		typeargs(args)
+	case "pwd":
+		pwd()
 	default:
 		execFromPath(cmd, args)
 	}
@@ -85,7 +87,7 @@ func typeargs(args []string) {
 }
 
 func typearg(arg string) {
-	builtin := []string{"exit", "echo", "type"} // TODO: review replication of commands check
+	builtin := []string{"exit", "echo", "type", "pwd"} // TODO: review replication of commands check
 
 	contains := slices.Contains(builtin, arg)
 	if contains {
@@ -121,4 +123,13 @@ func execFromPath(cmd string, args []string) {
 	}
 
 	fmt.Fprintf(os.Stdout, "%s", output)
+}
+
+func pwd() {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Fprintf(os.Stdout, "%s\n", wd)
 }

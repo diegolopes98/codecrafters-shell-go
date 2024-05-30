@@ -19,17 +19,7 @@ func repl(reader *bufio.Reader) {
 	for {
 		input := read(reader)
 
-		cmd, args := eval(input)
-
-		valid := validateCommand(cmd)
-
-		if cmd == "exit" {
-			exit(args)
-		}
-
-		if !valid {
-			fmt.Fprintf(os.Stdout, "%s: command not found\n", cmd)
-		}
+		eval(input)
 	}
 }
 
@@ -41,20 +31,28 @@ func read(reader *bufio.Reader) string {
 		log.Fatal(err)
 	}
 
-	return input
+	return strings.TrimRight(input, "\n")
 }
 
-func eval(input string) (string, []string) {
-	args := strings.Split(strings.TrimRight(input, "\n"), " ")
+func eval(input string) {
+	cmd, args := parse(input)
+
+	exec(cmd, args)
+}
+
+func parse(input string) (string, []string) {
+	args := strings.Split(strings.TrimSpace(input), " ")
 	return args[0], args[1:]
 }
 
-func validateCommand(cmd string) bool {
+func exec(cmd string, args []string) {
 	switch cmd {
 	case "exit":
-		return true
+		exit(args)
+	case "echo":
+		echo(args)
 	default:
-		return false
+		notFound(cmd)
 	}
 }
 
@@ -65,4 +63,12 @@ func exit(args []string) {
 	} else {
 		os.Exit(0) // TODO: maybe -1 better?
 	}
+}
+
+func echo(args []string) {
+	fmt.Fprintf(os.Stdout, "%s\n", strings.Join(args, " "))
+}
+
+func notFound(cmd string) {
+	fmt.Printf("%s: command not found\n", cmd)
 }

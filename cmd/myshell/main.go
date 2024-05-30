@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -11,17 +13,21 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	repl(reader)
-
-	os.Exit(0)
 }
 
 func repl(reader *bufio.Reader) {
 	for {
 		input := read(reader)
 
-		cmd := eval(input)
+		cmd, args := eval(input)
 
-		if valid := validateCommand(cmd); !valid {
+		valid := validateCommand(cmd)
+
+		if cmd == "exit" {
+			exit(args)
+		}
+
+		if !valid {
 			fmt.Fprintf(os.Stdout, "%s: command not found\n", cmd)
 		}
 	}
@@ -32,17 +38,31 @@ func read(reader *bufio.Reader) string {
 
 	input, err := reader.ReadString('\n')
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "Error reading from buffer %s", err)
-		os.Exit(-1)
+		log.Fatal(err)
 	}
 
 	return input
 }
 
-func eval(input string) string {
-	return strings.TrimRight(input, "\n") // TODO: add proper evaluation
+func eval(input string) (string, []string) {
+	args := strings.Split(strings.TrimRight(input, "\n"), " ")
+	return args[0], args[1:]
 }
 
 func validateCommand(cmd string) bool {
-	return false // TODO: add proper validation
+	switch cmd {
+	case "exit":
+		return true
+	default:
+		return false
+	}
+}
+
+func exit(args []string) {
+	if len(args) > 0 {
+		exitCode, _ := strconv.Atoi(args[0])
+		os.Exit(exitCode)
+	} else {
+		os.Exit(0) // TODO: maybe -1 better?
+	}
 }

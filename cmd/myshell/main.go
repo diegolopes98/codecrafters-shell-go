@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	execos "os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -56,7 +57,12 @@ func exec(cmd string, args []string) {
 	case "type":
 		typeargs(args)
 	default:
-		notFound(cmd)
+		fullPath, isFromPath := isFromPath(cmd)
+		if isFromPath {
+			execFromPath(fullPath, args)
+		} else {
+			notFound(cmd)
+		}
 	}
 }
 
@@ -109,4 +115,15 @@ func isFromPath(arg string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func execFromPath(binPath string, args []string) {
+	execution := execos.Command(binPath, args...)
+
+	output, err := execution.CombinedOutput()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Fprintf(os.Stdout, "%s", output)
 }

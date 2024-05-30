@@ -94,7 +94,6 @@ func typearg(arg string) {
 		if fromPath {
 			fmt.Fprintf(os.Stdout, "%s is %s\n", arg, fullPath)
 		} else {
-
 			fmt.Fprintf(os.Stdout, "%s not found\n", arg)
 		}
 	}

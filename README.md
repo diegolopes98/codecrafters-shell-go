@@ -1,4 +1,4 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/a0af3094-777c-45ad-92b6-431fccefdeac)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+[![progress-banner](https://backend.codecrafters.io/progress/shell/a0af3094-777c-45ad-92b6-431fccefdeac)](https://app.codecrafters.io/users/diegolopes98?r=2qF)
 
 # Build your own Shell
 

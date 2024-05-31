@@ -14,7 +14,7 @@ exit code
 echo something
 type any_command
 cd {~, ./some_relative_path, /some/absolute/path}
-./executable.sh
+executable_from_path
 ```
 
 **Note**: If you're viewing this repo on GitHub, head over to

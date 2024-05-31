@@ -7,22 +7,43 @@ import (
 	"os"
 	execos "os/exec"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 )
 
+type cmdexec func(...string)
+
+var commands = make(map[string]cmdexec)
+
 func main() {
+	loadCommands()
+
 	reader := bufio.NewReader(os.Stdin)
 
 	repl(reader)
+}
+
+func loadCommands() {
+	commands["exit"] = func(s ...string) { exit(s) }
+	commands["echo"] = func(s ...string) { echo(s) }
+	commands["type"] = func(s ...string) { typeargs(s) }
+	commands["cd"] = func(s ...string) { cd(s) }
+	commands["pwd"] = func(_ ...string) { pwd() }
 }
 
 func repl(reader *bufio.Reader) {
 	for {
 		input := read(reader)
 
-		eval(input)
+		cmd, args := parse(input)
+
+		cmdfunc, ok := commands[cmd]
+
+		if ok {
+			cmdfunc(args...)
+		} else {
+			execFromPath(cmd, args)
+		}
 	}
 }
 
@@ -37,32 +58,9 @@ func read(reader *bufio.Reader) string {
 	return strings.TrimRight(input, "\n")
 }
 
-func eval(input string) {
-	cmd, args := parse(input)
-
-	exec(cmd, args)
-}
-
 func parse(input string) (string, []string) {
 	args := strings.Split(strings.TrimSpace(input), " ")
 	return args[0], args[1:]
-}
-
-func exec(cmd string, args []string) {
-	switch cmd {
-	case "exit":
-		exit(args)
-	case "echo":
-		echo(args)
-	case "type":
-		typeargs(args)
-	case "pwd":
-		pwd()
-	case "cd":
-		cd(args)
-	default:
-		execFromPath(cmd, args)
-	}
 }
 
 func exit(args []string) {
@@ -70,7 +68,7 @@ func exit(args []string) {
 		exitCode, _ := strconv.Atoi(args[0])
 		os.Exit(exitCode)
 	} else {
-		os.Exit(0) // TODO: maybe -1 better?
+		os.Exit(0)
 	}
 }
 
@@ -89,9 +87,8 @@ func typeargs(args []string) {
 }
 
 func typearg(arg string) {
-	builtin := []string{"exit", "echo", "type", "pwd", "cd"} // TODO: review replication of commands check
+	_, contains := commands[arg]
 
-	contains := slices.Contains(builtin, arg)
 	if contains {
 		fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", arg)
 	} else {
